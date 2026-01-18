@@ -1,0 +1,9 @@
+# text files
+ant-movement.pdf
+README.md
+
+# user-helping scripts
+Makefile
+
+# no need for dockerfile in container
+Dockerfile 
