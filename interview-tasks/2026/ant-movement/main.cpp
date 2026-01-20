@@ -1,42 +1,18 @@
 #include <iostream>
+#include "source/AntMatrix.h"
+#include "source/AntUtils.h"
+#include "source/Config.h"
 
-using namespace std;
+int main(int argc, char* argv[]) {
+  Config config = LoadConfigFromArgs(argc, argv);
 
-int sumOfDigits(int x) {
-  int sum = 0;
-  while (x > 0) {
-    sum += x % 10;
-    x /= 10;
-  }
-  return sum;
-}
-
-int cellValue(int x, int y) {
-  return sumOfDigits(x) + sumOfDigits(y);
-}
-
-int RecursiveCount(bool matrix[2001][2001], int x, int y) {
-  if (cellValue(x, y) > 25 || matrix[x][y])
-    return 0;
+  Cell startingCell = Cell(config.xStart, config.yStart);
+  CanEnterCell* canEnterCell = config.canEnterCell;
   
-  matrix[x][y] = true;
-  int result = 1;
+  AntMatrix antMatrix;
+  int cellsVisited = antMatrix.Solve(canEnterCell->function, startingCell);
 
-  result += RecursiveCount(matrix, x, y + 1);
-  result += RecursiveCount(matrix, x, y - 1);
-  result += RecursiveCount(matrix, x + 1, y);
-  result += RecursiveCount(matrix, x - 1, y);
+  std::string imageFileName = DrawAntMatrix(antMatrix);
 
-  return result;
-}
-
-int main() {
-  bool matrix[2001][2001];
-  for (int x = 0; x <= 2000; x++)
-    for (int y = 0; y <= 2000; y++)
-      matrix[x][y] = false;
-
-  int visitedCells = RecursiveCount(matrix, 1000, 1000);
-
-  std::cout << "Ant can visit " << visitedCells << " different squares.\n";
+  GenerateIndexHTML(antMatrix, startingCell, canEnterCell->description, cellsVisited, imageFileName);
 }

@@ -1,0 +1,11 @@
+# text files
+ant-movement.pdf
+README.md
+
+# user-helping scripts
+Makefile
+
+# no need for dockerfiles in container
+Dockerfile
+docker-compose.yml
+.dockerignore

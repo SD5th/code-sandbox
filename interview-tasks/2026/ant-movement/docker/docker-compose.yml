@@ -1,0 +1,9 @@
+services:
+  ant-movement:
+    build:
+      context: .. 
+      dockerfile: docker/Dockerfile 
+    develop:
+      watch: []
+    ports:
+      - "8085:8085"

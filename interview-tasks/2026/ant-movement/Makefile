@@ -1,14 +1,16 @@
-docker-build:
-	docker build -t ant-movement .
+.PHONY: build, run, build-and-run, stop, shell
 
-docker-run:
-	docker run --rm ant-movement
+build:
+	cd docker && docker-compose build
 
-docker-build-and-run:
-	docker build -t ant-movement . && docker run --rm ant-movement
+run:
+	cd docker && docker-compose up
 
-docker-build-debug:
-	docker build -t ant-movement-debug .
+build-and-run:
+	cd docker && docker-compose up --build
 
-docker-run-debug:
-	docker run --rm -it --entrypoint sh ant-movement-debug
+stop:
+	cd docker && docker-compose down
+
+shell:
+	cd docker && docker-compose exec ant-movement sh
