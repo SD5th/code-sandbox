@@ -1,0 +1,4 @@
+flask
+cffi
+numpy
+pyinstaller

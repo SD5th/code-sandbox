@@ -1,0 +1,9 @@
+services:
+  cellular-automaton:
+    build:
+      context: .. 
+      dockerfile: docker/Dockerfile 
+    develop:
+      watch: []
+    ports:
+      - "5000:5000"

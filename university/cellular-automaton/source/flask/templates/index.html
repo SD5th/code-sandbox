@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cellular Automaton</title>
+  <style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+  }
+  
+  h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .info-panel {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .controls {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  button {
+    padding: 10px 20px;
+    margin: 5px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  button:active {
+    background-color: #3d8b40;
+  }
+  
+  #random-btn {
+    background-color: #2196F3;
+  }
+  
+  #random-btn:hover {
+    background-color: #0b7dda;
+  }
+  
+  #reset-btn {
+    background-color: #f44336;
+  }
+  
+  #reset-btn:hover {
+    background-color: #d32f2f;
+  }
+  
+  #grid-container {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-x: auto;
+  }
+  
+  .cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ddd;
+    display: inline-block;
+    text-align: center;
+    line-height: 30px;
+    font-size: 10px;
+    font-weight: bold;
+    margin: 1px;
+    transition: transform 0.2s;
+  }
+  
+  .cell:hover {
+    transform: scale(1.1);
+    z-index: 1;
+    position: relative;
+  }
+  
+  .size-controls {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  input[type="number"] {
+    padding: 8px;
+    width: 60px;
+    margin: 0 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .instructions {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: #666;
+  }
+  
+  .instructions h3 {
+    color: #333;
+    margin-top: 0;
+  }
+  
+  .instructions ul {
+    padding-left: 20px;
+  }
+  
+  .instructions li {
+    margin-bottom: 8px;
+  }
+  
+  #status {
+    color: #666;
+    font-style: italic;
+    margin-top: 10px;
+  }
+  
+  .grid-row {
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+  </style>
+</head>
+<body>
+  <h1>Cellular Automaton</h1>
+  
+  <div class="info-panel">
+  <strong>Step:</strong> <span id="step-count">0</span> | 
+  <strong>Grid size:</strong> <span id="grid-size">10×10</span>
+  <div id="status">Ready</div>
+  </div>
+  
+  <div class="controls">
+  <button id="step-btn" onclick="makeStep()">▶ Step</button>
+  <button id="random-btn" onclick="randomGrid()">🎲 Random</button>
+  <button id="reset-btn" onclick="resetGrid()">🔄 Reset</button>
+  
+  <div style="margin-top: 15px;">
+    <button id="play-btn" onclick="toggleSimulation()">▶ Start simulation</button>
+    <span style="color: #666; font-size: 14px; margin-left: 10px;">
+    (automatic steps)
+    </span>
+  </div>
+  </div>
+  
+  <div id="grid-container">
+  <div id="grid"></div>
+  </div>
+  
+  <div class="size-controls">
+  <label for="grid-size-input"><strong>Grid size:</strong></label>
+  <input type="number" id="grid-size-input" value="10" min="3" max="50">
+  <button onclick="changeSize()">Apply</button>
+  </div>
+
+<script>
+  let simulationInterval = null;
+  let currentGrid = null;
+  
+  async function loadState() {
+    try {
+    document.getElementById('status').textContent = 'Loading...';
+    const response = await fetch('/api/state');
+    if (!response.ok) throw new Error('Server error');
+    
+    const data = await response.json();
+    currentGrid = data.grid;
+    updateGrid(currentGrid);
+    document.getElementById('step-count').textContent = data.step;
+    document.getElementById('grid-size').textContent = `${data.size}×${data.size}`;
+    document.getElementById('status').textContent = 'Ready';
+    } catch (error) {
+    document.getElementById('status').textContent = `Error: ${error.message}`;
+    console.error('Load error:', error);
+    }
+  }
+  
+  function updateGrid(grid) {
+    const container = document.getElementById('grid');
+    let html = '';
+    
+    for(let i = 0; i < grid.length; i++) {
+    html += '<div class="grid-row">';
+    for(let j = 0; j < grid[i].length; j++) {
+      const value = grid[i][j];
+      const red = Math.round(value * 255);
+      const blue = 255 - red;
+      const color = `rgb(${red}, 0, ${blue})`;
+      const textColor = value > 0.5 ? 'white' : 'black';
+      
+      html += `<div class="cell" 
+        style="background-color: ${color}; color: ${textColor}"
+        title="(${i}, ${j}): ${value.toFixed(3)}">
+        ${value.toFixed(2)}
+        </div>`;
+    }
+    html += '</div>';
+    }
+    
+    container.innerHTML = html;
+  }
+  
+  async function makeStep() {
+    try {
+    document.getElementById('status').textContent = 'Stepping...';
+    const response = await fetch('/api/step', {
+      method: 'POST'
+    });
+    
+    if (!response.ok) throw new Error('Server error');
+    
+    const data = await response.json();
+    currentGrid = data.grid;
+    updateGrid(currentGrid);
+    document.getElementById('step-count').textContent = data.step;
+    document.getElementById('status').textContent = 'Step complete';
+    } catch (error) {
+    document.getElementById('status').textContent = `Error: ${error.message}`;
+    console.error('Step error:', error);
+    }
+  }
+  
+  async function resetGrid() {
+    try {
+    document.getElementById('status').textContent = 'Resetting...';
+    const response = await fetch('/api/reset', {
+      method: 'POST'
+    });
+    
+    if (!response.ok) throw new Error('Server error');
+    
+    const data = await response.json();
+    currentGrid = data.grid;
+    updateGrid(currentGrid);
+    document.getElementById('step-count').textContent = 0;
+    document.getElementById('status').textContent = 'Grid reset';
+    } catch (error) {
+    document.getElementById('status').textContent = `Error: ${error.message}`;
+    console.error('Reset error:', error);
+    }
+  }
+  
+  async function randomGrid() {
+    const size = document.getElementById('grid-size-input').value;
+    try {
+    document.getElementById('status').textContent = 'Creating random grid...';
+    const response = await fetch('/api/init', {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+      size: parseInt(size),
+      random: true
+      })
+    });
+    
+    if (!response.ok) throw new Error('Server error');
+    
+    const data = await response.json();
+    currentGrid = data.grid;
+    updateGrid(currentGrid);
+    document.getElementById('step-count').textContent = 0;
+    document.getElementById('grid-size').textContent = `${size}×${size}`;
+    document.getElementById('status').textContent = 'Random grid created';
+    } catch (error) {
+    document.getElementById('status').textContent = `Error: ${error.message}`;
+    console.error('Random error:', error);
+    }
+  }
+  
+  async function changeSize() {
+    const size = document.getElementById('grid-size-input').value;
+    try {
+    document.getElementById('status').textContent = 'Changing size...';
+    const response = await fetch('/api/init', {
+      method: 'POST',
+      headers: {
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+      size: parseInt(size)
+      })
+    });
+    
+    if (!response.ok) throw new Error('Server error');
+    
+    const data = await response.json();
+    currentGrid = data.grid;
+    updateGrid(currentGrid);
+    document.getElementById('step-count').textContent = 0;
+    document.getElementById('grid-size').textContent = `${size}×${size}`;
+    document.getElementById('status').textContent = 'Size changed';
+    } catch (error) {
+    document.getElementById('status').textContent = `Error: ${error.message}`;
+    console.error('Size error:', error);
+    }
+  }
+  
+  function toggleSimulation() {
+    const button = document.getElementById('play-btn');
+    
+    if (simulationInterval) {
+    clearInterval(simulationInterval);
+    simulationInterval = null;
+    button.textContent = '▶ Start simulation';
+    button.style.backgroundColor = '#4CAF50';
+    document.getElementById('status').textContent = 'Simulation stopped';
+    } else {
+    simulationInterval = setInterval(makeStep, 200);
+    button.textContent = '⏸ Pause';
+    button.style.backgroundColor = '#ff9800';
+    document.getElementById('status').textContent = 'Simulation running';
+    }
+  }
+  
+  document.addEventListener('keydown', (event) => {
+    if (event.code === 'Space') {
+    event.preventDefault();
+    makeStep();
+    }
+    if (event.code === 'KeyR' && event.ctrlKey) {
+    event.preventDefault();
+    randomGrid();
+    }
+    if (event.code === 'KeyP' && event.ctrlKey) {
+    event.preventDefault();
+    toggleSimulation();
+    }
+  });
+  
+  window.onload = loadState;
+  setInterval(loadState, 30000);
+  </script>
+</body>
+</html>
