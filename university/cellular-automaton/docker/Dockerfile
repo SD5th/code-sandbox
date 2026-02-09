@@ -1,5 +1,4 @@
-#debian:13.3-slim amd64
-ARG IMAGE=debian:13.3-slim
+ARG IMAGE=debian:trixie
 
 FROM ${IMAGE} AS cpp-builder
 
@@ -8,7 +7,7 @@ RUN apt update && apt install -y --no-install-recommends \
     cmake \ 
     make 
 
-COPY ./source/solver/ /build/
+COPY ./source/automaton/ /build/
 WORKDIR /build/
     
 RUN mkdir build && cd build && \
@@ -16,7 +15,7 @@ RUN mkdir build && cd build && \
     make 
     
 RUN mkdir /output && mkdir /output/lib/
-RUN mv ./build/libsolver.so /output/lib/
+RUN mv ./build/libautomaton.so /output/lib/
 
 FROM ${IMAGE} AS python-builder
 
@@ -44,8 +43,11 @@ RUN mv ./dist/automaton-web /output/
 FROM ${IMAGE} AS runtime
 
 RUN apt update && \
-    apt install -y --no-install-recommends libstdc++6 && \ 
-    rm -rf /var/lib/apt/lists/*
+    apt install -y --no-install-recommends \
+    libstdc++6 \ 
+    libgomp1 \
+    htop \ 
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
