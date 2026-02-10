@@ -12,74 +12,90 @@
     }
     
     body {
-      font-family: Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       line-height: 1.6;
       padding: 20px;
-      background-color: #f5f5f5;
+      background-color: #f8f9fa;
+      color: #333;
     }
     
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
       background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
     }
     
     h1 {
       text-align: center;
-      margin-bottom: 20px;
-      color: #333;
+      margin-bottom: 25px;
+      color: #2c3e50;
+      font-size: 28px;
     }
     
     .controls {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-      padding: 15px;
-      background: #f9f9f9;
-      border-radius: 5px;
+      gap: 12px;
+      margin-bottom: 25px;
+      padding: 20px;
+      background: #f1f3f4;
+      border-radius: 8px;
+      align-items: center;
     }
     
     button {
-      padding: 10px 15px;
+      padding: 10px 18px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
-      font-weight: bold;
-      transition: background-color 0.2s;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
     }
     
     button:hover {
-      opacity: 0.9;
+      transform: translateY(-1px);
     }
     
-    .btn-start { background-color: #4CAF50; color: white; }
-    .btn-stop { background-color: #f44336; color: white; }
-    .btn-step { background-color: #2196F3; color: white; }
-    .btn-randomize { background-color: #FF9800; color: white; }
-    .btn-clear { background-color: #9E9E9E; color: white; }
+    .btn-start { background-color: #2ecc71; color: white; }
+    .btn-stop { background-color: #e74c3c; color: white; }
+    .btn-step { background-color: #3498db; color: white; }
+    .btn-randomize { background-color: #f39c12; color: white; }
+    .btn-clear { background-color: #95a5a6; color: white; }
+    .btn-size { background-color: #9b59b6; color: white; }
     
     .size-controls {
       display: flex;
       gap: 10px;
       align-items: center;
+      margin-right: 20px;
+    }
+    
+    .size-controls label {
+      font-weight: 600;
+      color: #2c3e50;
     }
     
     .size-controls input {
-      width: 60px;
-      padding: 5px;
+      width: 70px;
+      padding: 8px;
       border: 1px solid #ddd;
       border-radius: 4px;
+      font-size: 14px;
+      text-align: center;
     }
     
     .grid-container {
       overflow: auto;
       margin-bottom: 20px;
-      border: 2px solid #ddd;
-      border-radius: 4px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      min-height: 500px;
+      max-height: 70vh;
     }
     
     #grid {
@@ -88,58 +104,279 @@
     }
     
     .cell {
-      width: 20px;
-      height: 20px;
-      border: 1px solid #eee;
+      width: 14px;
+      height: 14px;
+      min-width: 14px;
+      min-height: 14px;
+      border: 1px solid #f0f0f0;
       cursor: pointer;
       transition: background-color 0.1s;
     }
     
     .cell.alive {
-      background-color: #000;
+      background-color: #2c3e50;
     }
     
     .cell.dead {
-      background-color: #fff;
+      background-color: #ffffff;
+    }
+    
+    .cell:hover {
+      border-color: #3498db;
+      transform: scale(1.05);
     }
     
     .status {
       text-align: center;
-      padding: 10px;
-      background: #e8f4fd;
-      border-radius: 4px;
+      padding: 15px;
+      background: #e8f4f8;
+      border-radius: 6px;
       margin-bottom: 20px;
+      border-left: 4px solid #3498db;
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
     
+    .status-line {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .status-label {
+      color: #666;
+      font-weight: 500;
+    }
+    
+    .status-value {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    
+    .status-performance {
+      color: #e74c3c;
+      font-weight: 600;
+      background: #fff5f5;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid #ffcdd2;
+    }
+    
+    .main-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      flex: 1;
+    }
+    
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+      background: white;
+      padding: 8px 15px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    
+    .speed-control input {
+      width: 120px;
+    }
+    
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 15px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    .stats-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+    }
+    
+    .stats-label {
+      color: #666;
+      font-size: 12px;
+    }
+    
+    .stats-value {
+      color: #2c3e50;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .stats-performance {
+      color: #e74c3c;
+      font-weight: 600;
+    }
+    
+    .grid-container::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+    
+    .grid-container::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 6px;
+    }
+    
+    .grid-container::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 6px;
+    }
+    
+    .grid-container::-webkit-scrollbar-thumb:hover {
+      background: #a8a8a8;
+    }
+    
+    @media (max-width: 1200px) {
+      .cell {
+        width: 12px;
+        height: 12px;
+        min-width: 12px;
+        min-height: 12px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .size-controls {
+        margin-right: 0;
+        justify-content: center;
+      }
+      
+      .speed-control {
+        margin-left: 0;
+        justify-content: center;
+      }
+      
+      .cell {
+        width: 10px;
+        height: 10px;
+        min-width: 10px;
+        min-height: 10px;
+      }
+      
+      .stats {
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+      
+      .status-line {
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Cellular Automaton: Game of Life</h1>
+    <h1>Conway's Game of Life</h1>
     
     <div class="status" id="status">
-      Ready. Grid size: 30x30
+      <div class="status-line">
+        <div class="status-item">
+          <span class="status-label">Grid:</span>
+          <span class="status-value" id="gridInfo">30×30</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">State:</span>
+          <span class="status-value" id="stateInfo">Ready</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Generation:</span>
+          <span class="status-value" id="generationInfo">0</span>
+        </div>
+      </div>
+      <div class="status-line">
+        <div class="status-item">
+          <span class="status-label">Target speed:</span>
+          <span class="status-value" id="targetSpeed">100ms/step</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Actual speed:</span>
+          <span class="status-value" id="actualSpeed">-</span>
+        </div>
+        <div class="status-item" id="performanceWarning" style="display: none;">
+          <span class="status-performance" id="performanceText"></span>
+        </div>
+      </div>
     </div>
     
     <div class="controls">
       <div class="size-controls">
-        <span>Size:</span>
-        <input type="number" id="width" value="30" min="5" max="500">
+        <label>Size:</label>
+        <input type="number" id="width" value="30" min="5" max="1000">
         <span>×</span>
-        <input type="number" id="height" value="30" min="5" max="500">
-        <button onclick="initGrid()" class="btn-step">Apply</button>
+        <input type="number" id="height" value="30" min="5" max="1000">
+        <button onclick="initGrid()" class="btn-size">Apply Size</button>
       </div>
       
-      <button onclick="startRuntime()" class="btn-start">▶ Start</button>
-      <button onclick="stopRuntime()" class="btn-stop">⏹ Stop</button>
-      <button onclick="step()" class="btn-step">🔁 Step</button>
-      <button onclick="steps(10)" class="btn-step">10 Steps</button>
-      <button onclick="randomize()" class="btn-randomize">🎲 Random</button>
-      <button onclick="clearGrid()" class="btn-clear">Clear</button>
+      <div class="main-controls">
+        <button onclick="startRuntime()" class="btn-start">▶ Start Simulation</button>
+        <button onclick="stopRuntime()" class="btn-stop">⏹ Stop</button>
+        <button onclick="step()" class="btn-step">🔁 Single Step</button>
+        <button onclick="steps(10)" class="btn-step">10 Steps</button>
+        <button onclick="randomize()" class="btn-randomize">🎲 Randomize</button>
+        <button onclick="clearGrid()" class="btn-clear">Clear All</button>
+      </div>
+      
+      <div class="speed-control">
+        <label>Speed:</label>
+        <input type="range" id="speed" min="30" max="500" value="100" onchange="updateSpeed()">
+        <span id="speedValue">100ms</span>
+      </div>
     </div>
     
     <div class="grid-container">
       <table id="grid"></table>
+    </div>
+    
+    <div class="stats" id="stats">
+      <div class="stats-item">
+        <span class="stats-label">Live cells</span>
+        <span class="stats-value" id="liveCount">0</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Generation</span>
+        <span class="stats-value" id="generationCount">0</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Step time</span>
+        <span class="stats-value" id="stepTime">-</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">FPS</span>
+        <span class="stats-value" id="fps">-</span>
+      </div>
+      <div class="stats-item">
+        <span class="stats-label">Avg. step</span>
+        <span class="stats-value" id="avgStepTime">-</span>
+      </div>
     </div>
   </div>
 
@@ -148,14 +385,30 @@
     let gridHeight = 30;
     let isRunning = false;
     let pollingInterval = null;
+    let pollSpeed = 100;  
+    let generation = 0;
+    
+    let stepTimes = [];
+    let lastStepTime = 0;
+    let lastPollTime = 0;
+    let performanceHistory = [];
+    const MAX_HISTORY = 10;
     
     document.addEventListener('DOMContentLoaded', function() {
       fetchState();
+      createGrid(gridWidth, gridHeight);
     });
     
     function createGrid(width, height) {
       const table = document.getElementById('grid');
       table.innerHTML = '';
+      
+      const maxCellsOnScreen = Math.floor(window.innerWidth * 0.8 / 12);
+      let cellSize = 14; 
+      
+      if (width > maxCellsOnScreen) {
+        cellSize = Math.max(6, Math.floor(window.innerWidth * 0.8 / width));
+      }
       
       for (let y = 0; y < height; y++) {
         const row = document.createElement('tr');
@@ -166,6 +419,10 @@
           cell.id = `cell-${x}-${y}`;
           cell.dataset.x = x;
           cell.dataset.y = y;
+          cell.style.width = `${cellSize}px`;
+          cell.style.height = `${cellSize}px`;
+          cell.style.minWidth = `${cellSize}px`;
+          cell.style.minHeight = `${cellSize}px`;
           
           cell.addEventListener('click', function() {
             const x = parseInt(this.dataset.x);
@@ -178,15 +435,26 @@
         
         table.appendChild(row);
       }
+      
+      updateStats(0);
+      document.getElementById('gridInfo').textContent = `${width}×${height}`;
+      document.getElementById('gridSize').textContent = `${width}×${height}`;
     }
     
-    function updateGrid(grid) {
+    async function updateGrid(grid, stepDuration = null) {
       if (!grid || !grid.length) return;
+      
+      const updateStartTime = performance.now();
       
       gridHeight = grid.length;
       gridWidth = grid[0].length;
       
-      if (document.querySelectorAll('#grid tr').length !== gridHeight) {
+      let liveCount = 0;
+      
+      const currentRows = document.querySelectorAll('#grid tr').length;
+      const currentCols = currentRows > 0 ? document.querySelector('#grid tr').children.length : 0;
+      
+      if (currentRows !== gridHeight || currentCols !== gridWidth) {
         createGrid(gridWidth, gridHeight);
       }
       
@@ -194,23 +462,97 @@
         for (let x = 0; x < gridWidth; x++) {
           const cell = document.getElementById(`cell-${x}-${y}`);
           if (cell) {
-            cell.className = grid[y][x] ? 'cell alive' : 'cell dead';
+            const isAlive = grid[y][x];
+            cell.className = isAlive ? 'cell alive' : 'cell dead';
+            if (isAlive) liveCount++;
           }
         }
       }
       
-      document.getElementById('status').textContent = 
-        `Grid: ${gridWidth}×${gridHeight}. ` + 
-        (isRunning ? 'Simulation running' : 'Ready');
+      if (isRunning) {
+        generation++;
+      }
+      
+      const updateEndTime = performance.now();
+      const renderTime = updateEndTime - updateStartTime;
+      
+      updateStats(liveCount);
+      updatePerformanceStats(stepDuration, renderTime);
+      
+      document.getElementById('gridInfo').textContent = `${gridWidth}×${gridHeight}`;
+      document.getElementById('generationInfo').textContent = generation;
+      document.getElementById('generationCount').textContent = generation;
+      document.getElementById('targetSpeed').textContent = `${pollSpeed}ms/step`;
+      
+      if (isRunning) {
+        document.getElementById('stateInfo').textContent = 'Running';
+        document.getElementById('stateInfo').style.color = '#2ecc71';
+      } else {
+        document.getElementById('stateInfo').textContent = 'Paused';
+        document.getElementById('stateInfo').style.color = '#3498db';
+      }
+    }
+    
+    function updateStats(liveCount) {
+      document.getElementById('liveCount').textContent = liveCount;
+    }
+    
+    function updatePerformanceStats(stepDuration, renderTime) {
+      if (stepDuration !== null) {
+        lastStepTime = stepDuration;
+        stepTimes.push(stepDuration);
+        if (stepTimes.length > MAX_HISTORY) {
+          stepTimes.shift();
+        }
+        
+        const avgStepTime = stepTimes.reduce((a, b) => a + b, 0) / stepTimes.length;
+        
+        const formatTime = (ms) => {
+          if (ms < 1) return `${ms.toFixed(2)}ms`;
+          if (ms < 1000) return `${ms.toFixed(1)}ms`;
+          return `${(ms / 1000).toFixed(2)}s`;
+        };
+        
+        const actualStepTime = Math.max(stepDuration, pollSpeed);
+        const fps = 1000 / actualStepTime;
+        
+        document.getElementById('stepTime').textContent = formatTime(stepDuration);
+        document.getElementById('avgStepTime').textContent = formatTime(avgStepTime);
+        document.getElementById('fps').textContent = fps.toFixed(1);
+        
+        const actualSpeedText = formatTime(actualStepTime) + '/step';
+        document.getElementById('actualSpeed').textContent = actualSpeedText;
+        
+        const performanceWarning = document.getElementById('performanceWarning');
+        const performanceText = document.getElementById('performanceText');
+        
+        if (stepDuration > pollSpeed * 1.5) {
+          const slowdown = (stepDuration / pollSpeed).toFixed(1);
+          performanceText.textContent = `Slow: ${slowdown}x target`;
+          performanceWarning.style.display = 'block';
+          
+          if (stepDuration > pollSpeed * 3) {
+            performanceText.style.backgroundColor = '#ffebee';
+            performanceText.style.color = '#c62828';
+          } else {
+            performanceText.style.backgroundColor = '#fff3e0';
+            performanceText.style.color = '#f57c00';
+          }
+        } else {
+          performanceWarning.style.display = 'none';
+        }
+      }
     }
     
     async function fetchState() {
       try {
+        const startTime = performance.now();
         const response = await fetch('/api/state');
         const data = await response.json();
+        const endTime = performance.now();
         
         if (data.success) {
-          updateGrid(data.grid);
+          updateGrid(data.grid, endTime - startTime);
         }
       } catch (error) {
         console.error('Error fetching state:', error);
@@ -221,12 +563,13 @@
       const width = parseInt(document.getElementById('width').value);
       const height = parseInt(document.getElementById('height').value);
       
-      if (width < 5 || height < 5 || width > 500 || height > 500) {
-        alert('Size must be between 5 and 500 cells');
+      if (width < 5 || height < 5 || width > 1000 || height > 1000) {
+        alert('Size must be between 5 and 1000 cells');
         return;
       }
       
       try {
+        const startTime = performance.now();
         const response = await fetch('/api/init', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -234,9 +577,12 @@
         });
         
         const data = await response.json();
+        const endTime = performance.now();
         
         if (data.success) {
-          fetchState();
+          generation = 0;
+          stepTimes = []; 
+          updateGrid(data.grid, endTime - startTime);
         }
       } catch (error) {
         console.error('Error initializing grid:', error);
@@ -245,15 +591,18 @@
     
     async function step() {
       try {
+        const startTime = performance.now();
         const response = await fetch('/api/step', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'}
         });
         
         const data = await response.json();
+        const endTime = performance.now();
         
         if (data.success) {
-          updateGrid(data.grid);
+          generation++;
+          updateGrid(data.grid, endTime - startTime);
         }
       } catch (error) {
         console.error('Error performing step:', error);
@@ -262,6 +611,7 @@
     
     async function steps(n) {
       try {
+        const startTime = performance.now();
         const response = await fetch('/api/steps', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -269,9 +619,13 @@
         });
         
         const data = await response.json();
+        const endTime = performance.now();
+        const totalTime = endTime - startTime;
+        const avgTimePerStep = totalTime / n;
         
         if (data.success) {
-          updateGrid(data.grid);
+          generation += n;
+          updateGrid(data.grid, avgTimePerStep);
         }
       } catch (error) {
         console.error('Error performing steps:', error);
@@ -280,15 +634,18 @@
     
     async function randomize() {
       try {
+        const startTime = performance.now();
         const response = await fetch('/api/randomize', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'}
         });
         
         const data = await response.json();
+        const endTime = performance.now();
         
         if (data.success) {
-          updateGrid(data.grid);
+          generation = 0;
+          updateGrid(data.grid, endTime - startTime);
         }
       } catch (error) {
         console.error('Error randomizing grid:', error);
@@ -297,15 +654,18 @@
     
     async function clearGrid() {
       try {
+        const startTime = performance.now();
         const response = await fetch('/api/clear', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'}
         });
         
         const data = await response.json();
+        const endTime = performance.now();
         
         if (data.success) {
-          updateGrid(data.grid);
+          generation = 0;
+          updateGrid(data.grid, endTime - startTime);
         }
       } catch (error) {
         console.error('Error clearing grid:', error);
@@ -314,6 +674,7 @@
     
     async function toggleCell(x, y) {
       try {
+        const startTime = performance.now();
         const cell = document.getElementById(`cell-${x}-${y}`);
         const isAlive = cell.classList.contains('alive');
         
@@ -324,41 +685,42 @@
         });
         
         const data = await response.json();
+        const endTime = performance.now();
         
         if (data.success) {
           cell.className = !isAlive ? 'cell alive' : 'cell dead';
+          updateStats(calculateLiveCount());
+          updatePerformanceStats(endTime - startTime, 0);
         }
       } catch (error) {
         console.error('Error toggling cell:', error);
       }
     }
     
+    function calculateLiveCount() {
+      let count = 0;
+      const cells = document.querySelectorAll('.cell.alive');
+      return cells.length;
+    }
+    
     async function startRuntime() {
       if (isRunning) return;
       
       try {
+        const startTime = performance.now();
         const response = await fetch('/api/start', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'}
         });
         
         const data = await response.json();
+        const endTime = performance.now();
         
         if (data.success) {
           isRunning = true;
-          
-          pollingInterval = setInterval(async () => {
-            try {
-              const response = await fetch('/api/runtime_state');
-              const data = await response.json();
-              
-              if (data.success) {
-                updateGrid(data.grid);
-              }
-            } catch (error) {
-              console.error('Polling error:', error);
-            }
-          }, 100);
+          stepTimes = []; 
+          updatePolling();
+          updatePerformanceStats(endTime - startTime, 0);
         }
       } catch (error) {
         console.error('Error starting runtime:', error);
@@ -369,12 +731,14 @@
       if (!isRunning) return;
       
       try {
+        const startTime = performance.now();
         const response = await fetch('/api/stop', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'}
         });
         
         const data = await response.json();
+        const endTime = performance.now();
         
         if (data.success) {
           isRunning = false;
@@ -384,12 +748,63 @@
             pollingInterval = null;
           }
           
+          updatePerformanceStats(endTime - startTime, 0);
           fetchState();
         }
       } catch (error) {
         console.error('Error stopping runtime:', error);
       }
     }
+    
+    function updatePolling() {
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+      }
+      
+      lastPollTime = performance.now();
+      
+      pollingInterval = setInterval(async () => {
+        try {
+          const pollStartTime = performance.now();
+          const response = await fetch('/api/runtime_state');
+          const data = await response.json();
+          const pollEndTime = performance.now();
+          
+          if (data.success) {
+            const actualPollInterval = pollStartTime - lastPollTime;
+            lastPollTime = pollStartTime;
+            
+            updateGrid(data.grid, actualPollInterval);
+          }
+        } catch (error) {
+          console.error('Polling error:', error);
+        }
+      }, pollSpeed);
+    }
+    
+    function updateSpeed() {
+      const speedSlider = document.getElementById('speed');
+      pollSpeed = parseInt(speedSlider.value);
+      document.getElementById('speedValue').textContent = pollSpeed + 'ms';
+      document.getElementById('targetSpeed').textContent = `${pollSpeed}ms/step`;
+      
+      if (isRunning) {
+        updatePolling();
+      }
+    }
+    
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        const table = document.getElementById('grid');
+        if (table.rows.length > 0) {
+          const currentWidth = table.rows[0].cells.length;
+          const currentHeight = table.rows.length;
+          createGrid(currentWidth, currentHeight);
+        }
+      }, 250);
+    });
   </script>
 </body>
 </html>

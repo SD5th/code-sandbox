@@ -19,6 +19,16 @@ namespace {
   inline int get_idx(int x, int y, int width) { 
     return y * width + x; 
   }
+
+  inline bool conways_game_of_life(bool cell, int live_count){
+    return 
+    ( cell && ((live_count == 2) || (live_count == 3))) || 
+    (!cell &&   live_count == 3);
+  
+    // alive cell stays alive if there are 2 or 3 alive cells near
+    // dead cell turns alive if there are 3 alive cells near
+    // in other ways cell turns/stays dead
+  } 
 }
 
 automaton::automaton(int width, int height): 
@@ -34,14 +44,18 @@ automaton::automaton(int width, int height):
   if (!cells_ptr) throw std::bad_alloc();
   cells_.reset(static_cast<bool*>(cells_ptr));
   
-  void* neighbours_ptr = std::aligned_alloc(ALIGNMENT, cells_amount_ * NEIGHBOURS_COUNT * sizeof(int));
-  if (!neighbours_ptr) throw std::bad_alloc();
-  neighbours_.reset(static_cast<int*>(neighbours_ptr));
+  #ifdef USE_NEIGHBOURS
+    void* neighbours_ptr = std::aligned_alloc(ALIGNMENT, cells_amount_ * NEIGHBOURS_COUNT * sizeof(int));
+    if (!neighbours_ptr) throw std::bad_alloc();
+    neighbours_.reset(static_cast<int*>(neighbours_ptr));
+    
+    fill_neighbours();
+  #endif
     
   clear_cells(); 
-  fill_neighbours();
 }
 
+#ifdef USE_NEIGHBOURS
 void automaton::fill_neighbours() noexcept {
   #ifdef _OPENMP
   #pragma omp parallel for collapse(2)
@@ -62,6 +76,7 @@ void automaton::fill_neighbours() noexcept {
     }
   }
 }
+#endif
 
 bool automaton::get_cell(int x, int y) const {
   if (check_boundaries(x, y, width_, height_)) [[likely]] {
@@ -80,39 +95,39 @@ void automaton::set_cell(int x, int y, bool value) {
 
 void automaton::randomize_cells() noexcept {
   #ifdef _OPENMP
-  #pragma omp parallel 
-  {
-    static thread_local std::mt19937 rng(std::random_device{}());
-    static thread_local bool initialized = false;
+    #pragma omp parallel 
+    {
+      static thread_local std::mt19937 rng(std::random_device{}());
+      static thread_local bool initialized = false;
+      
+      if (!initialized) {
+        std::random_device rd;
+        rng.seed(rd() ^ static_cast<unsigned>(omp_get_thread_num()));
+        initialized = true;
+      }
+      
+      std::bernoulli_distribution dist(0.5);
+      
+      #pragma omp for 
+      for (int i = 0; i < cells_amount_; i++) {
+        cells_[i] = dist(rng);
+      }
+    }
+  #else
+    static std::mt19937 rng(std::random_device{}());
+    static bool initialized = false;
     
     if (!initialized) {
       std::random_device rd;
-      rng.seed(rd() ^ static_cast<unsigned>(omp_get_thread_num()));
+      rng.seed(rd());
       initialized = true;
     }
     
     std::bernoulli_distribution dist(0.5);
     
-    #pragma omp for 
     for (int i = 0; i < cells_amount_; i++) {
       cells_[i] = dist(rng);
     }
-  }
-  #else
-  static std::mt19937 rng(std::random_device{}());
-  static bool initialized = false;
-  
-  if (!initialized) {
-    std::random_device rd;
-    rng.seed(rd());
-    initialized = true;
-  }
-  
-  std::bernoulli_distribution dist(0.5);
-  
-  for (int i = 0; i < cells_amount_; i++) {
-    cells_[i] = dist(rng);
-  }
   #endif
 }
 
@@ -127,12 +142,49 @@ void automaton::step() {
   if (!cells_new_ptr) throw std::bad_alloc();
   std::unique_ptr<bool[], aligned_deleter> cells_new(static_cast<bool*>(cells_new_ptr));
 
-  #ifdef _OPENMP
-  #pragma omp parallel for
-  #endif
+  #ifdef USE_NEIGHBOURS
+    #ifdef _OPENMP
+      #pragma omp parallel for
+    #endif
     for (int i = 0; i < cells_amount_; i++)
       cells_new[i] = apply_rule(i);
   
+  #else
+    #ifdef _OPENMP
+      #pragma omp parallel for collapse(2)
+    #endif
+    for (int y = 1; y < height_ - 1; y++) {
+      for (int x = 1; x < width_ - 1; x++) {
+        int cell_idx = get_idx(x, y, width_);
+        cells_new[cell_idx] = apply_rule<true>(x, y);
+      }
+    }
+
+    #ifdef _OPENMP
+      #pragma omp parallel for
+    #endif
+    for (int x = 0; x < width_; x++) {
+      int cell_idx1 = get_idx(x, 0, width_);
+      cells_new[cell_idx1] = apply_rule<false>(x, 0);
+
+      int cell_idx2 = get_idx(x, height_-1, width_);
+      cells_new[cell_idx2] = apply_rule<false>(x, height_-1);
+    }
+
+    #ifdef _OPENMP
+      #pragma omp parallel for
+    #endif
+    for (int y = 1; y < height_ - 1; y++) {
+      int cell_idx1 = get_idx(0, y, width_);
+      cells_new[cell_idx1] = apply_rule<false>(0, y);
+
+      int cell_idx2 = get_idx(width_-1, y, width_);
+      cells_new[cell_idx2] = apply_rule<false>(width_-1, y);
+    }
+
+
+  #endif
+
   cells_.swap(cells_new);
 }
 
@@ -141,20 +193,51 @@ void automaton::steps(int n_steps) {
     step();
 }
 
-bool automaton::apply_rule(int cell_idx) const noexcept {
-  const int* nb = &neighbours_[cell_idx * NEIGHBOURS_COUNT];
+#ifdef USE_NEIGHBOURS
+  bool automaton::apply_rule(int cell_idx) const noexcept {
 
-  int live_count = 
-    cells_[nb[0]] + cells_[nb[1]] + cells_[nb[2]] + cells_[nb[3]] + 
-    cells_[nb[4]] + cells_[nb[5]] + cells_[nb[6]] + cells_[nb[7]];
+    const int* nb = &neighbours_[cell_idx * NEIGHBOURS_COUNT];
 
-  bool cell = cells_[cell_idx];
-
-  return 
-    ( cell && ((live_count == 2) || (live_count == 3))) || 
-    (!cell &&   live_count == 3);
-
-  // alive cell stays alive if there are 2 or 3 alive cells near
-  // dead cell turns alive if there are 3 alive cells near
-  // in other ways cell turns/stays dead
+    int live_count = 
+      cells_[nb[0]] + cells_[nb[1]] + cells_[nb[2]] + cells_[nb[3]] + 
+      cells_[nb[4]] + cells_[nb[5]] + cells_[nb[6]] + cells_[nb[7]];
+    
+    return conways_game_of_life(cells_[cell_idx], live_count);
+  }
+#else
+template<bool IsInnerCell>
+bool automaton::apply_rule(int x, int y) const noexcept {
+  int live_count = 0;
+  
+  int y_above, y_below, x_left, x_right;
+  if constexpr (IsInnerCell) {
+    y_above = (y - 1) * width_;  
+    y_below = (y + 1) * width_;  
+    
+    x_left  = x - 1;
+    x_right = x + 1;
+  } else {
+    y_above = (y == 0 ? height_ - 1 : y - 1) * width_;
+    y_below = (y == height_ - 1 ? 0 : y + 1) * width_;
+    x_left  = x == 0 ? width_ - 1 : x - 1;
+    x_right = x == width_ - 1 ? 0 : x + 1;
+  }
+  
+  int curr_row = y * width_;
+  
+  live_count += cells_[y_above + x_left];   
+  live_count += cells_[y_above + x];        
+  live_count += cells_[y_above + x_right];  
+  
+  live_count += cells_[curr_row + x_left];  
+  live_count += cells_[curr_row + x_right]; 
+  
+  live_count += cells_[y_below + x_left];   
+  live_count += cells_[y_below + x];        
+  live_count += cells_[y_below + x_right];  
+  
+  bool cell = cells_[curr_row + x];
+  
+  return conways_game_of_life(cell, live_count);
 }
+#endif

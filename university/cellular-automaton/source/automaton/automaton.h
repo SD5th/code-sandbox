@@ -14,14 +14,20 @@ private:
     void operator()(void* p) const { std::free(p); }
   };
 
-  static constexpr int NEIGHBOURS_COUNT = 8;
   static constexpr std::size_t ALIGNMENT = 64;
-
+  
   std::unique_ptr<bool[], aligned_deleter> cells_;
-  std::unique_ptr<int[], aligned_deleter> neighbours_;
-
-  void fill_neighbours() noexcept;
-  bool apply_rule(int cell_idx) const noexcept;
+  
+  #ifdef USE_NEIGHBOURS
+    static constexpr int NEIGHBOURS_COUNT = 8;
+    std::unique_ptr<int[], aligned_deleter> neighbours_;
+    void fill_neighbours() noexcept;
+    
+    bool apply_rule(int cell_idx) const noexcept;
+  #else
+    template<bool IsInnerCell>
+    bool apply_rule(int x, int y) const noexcept;
+  #endif
   
 public:
   automaton(int width, int height);

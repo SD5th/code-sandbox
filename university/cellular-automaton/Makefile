@@ -3,6 +3,9 @@
 build:
 	cd docker && docker-compose build
 
+build-no-buildkit:
+	cd docker && DOCKER_BUILDKIT=0 docker-compose build
+
 run:
 	cd docker && docker-compose up
 
