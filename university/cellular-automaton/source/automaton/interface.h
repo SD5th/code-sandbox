@@ -15,8 +15,8 @@ int automaton_get_height(automaton_handle handle);
 const bool* automaton_get_cells(automaton_handle handle);
 
 bool automaton_get_cell(automaton_handle handle, int x, int y);
-
 void automaton_set_cell(automaton_handle handle, int x, int y, bool value);
+
 void automaton_randomize(automaton_handle handle);
 void automaton_clear(automaton_handle handle);
 
